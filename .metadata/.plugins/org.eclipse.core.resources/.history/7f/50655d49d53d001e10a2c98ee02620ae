@@ -1,0 +1,87 @@
+package com.projeto.springBatch.batch.step;
+
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.LineMapper;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.FileSystemResource;
+
+import com.projeto.springBatch.entities.Empregado;
+
+@Configuration
+public class MigrarDadosEmpregadoStep {
+	
+	@Autowired
+	private StepBuilderFactory stepBuilderFactory;
+	
+	@Bean
+//	@Primary
+	public Step migrarDadosEmpregadosStep(
+			 ItemReader<Empregado> itemReaderEmp,
+			 ItemProcessor<Empregado, Empregado> itemProcessorEmp,
+			 ItemWriter<Empregado> itemWriterEmp) {
+		
+		return stepBuilderFactory
+				.get("ETL-file-load")
+				.<Empregado, Empregado>chunk(5)
+				.reader(itemReaderEmp)
+				.processor(itemProcessorEmp)
+				.writer(itemWriterEmp)
+				.build();
+	}
+	
+	@Bean
+	public Step migrarDadosEmpregadosStep2(
+			 ItemReader<Empregado> itemReaderEmp,
+			 ItemProcessor<Empregado, Empregado> itemProcessorEmp,
+			 ItemWriter<Empregado> itemWriterEmp) {
+		
+		return stepBuilderFactory
+				.get("ETL-file-load")
+				.<Empregado, Empregado>chunk(10)
+				.reader(itemReaderEmp)
+				.processor(itemProcessorEmp)
+				.writer(itemWriterEmp)
+				.build();
+	}
+	
+	@Bean
+	public FlatFileItemReader<Empregado> itemReader() {
+		
+		FlatFileItemReader<Empregado> flatFileItemReader = new FlatFileItemReader<Empregado>();
+		flatFileItemReader.setResource(new FileSystemResource("src/main/resources/empregados.csv"));
+		flatFileItemReader.setName("CSV-Reader");
+		flatFileItemReader.setLinesToSkip(1);
+		flatFileItemReader.setLineMapper(lineMapper());
+		return flatFileItemReader;
+	}
+
+	@Bean
+	public LineMapper<Empregado> lineMapper() {
+		
+		DefaultLineMapper<Empregado> defaultLineMapper = new DefaultLineMapper<>();
+		DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
+		lineTokenizer.setDelimiter(",");
+		lineTokenizer.setStrict(false);
+		lineTokenizer.setNames(new String[] {"id","name","telefone","departamento"});
+		
+		BeanWrapperFieldSetMapper<Empregado> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
+		fieldSetMapper.setTargetType(Empregado.class);
+		
+		defaultLineMapper.setLineTokenizer(lineTokenizer);
+		defaultLineMapper.setFieldSetMapper(fieldSetMapper);
+		
+		return defaultLineMapper;
+	}
+
+}

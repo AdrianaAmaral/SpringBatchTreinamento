@@ -1,0 +1,64 @@
+package com.projeto.springBatch.entities;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Empregado {
+
+	@Id
+	private Integer id;
+	
+	private String name;
+	private Integer telefone;
+	private String departamento;
+	
+	public Empregado() {
+	}
+
+	public Empregado(Integer id, String name, Integer telefone, String departamento) {
+		this.id = id;
+		this.name = name;
+		this.telefone = telefone;
+		this.departamento = departamento;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getTelefone() {
+		return telefone;
+	}
+
+	public void setTelefone(Integer telefone) {
+		this.telefone = telefone;
+	}
+
+	public String getDepartamento() {
+		return departamento;
+	}
+
+	public void setDepartamento(String departamento) {
+		this.departamento = departamento;
+	}
+
+	@Override
+	public String toString() {
+		return "Empregado [id=" + id + ", nome=" + name + ", telefone=" + telefone + ", departamento=" + departamento
+				+ "]";
+	}
+	
+}
